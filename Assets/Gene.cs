@@ -20,4 +20,9 @@ public class Gene
         else
             return false;
     }
+
+    public override string ToString()
+    {
+        return Allele.ToString();
+    }
 }
