@@ -3,14 +3,15 @@ using UnityEngine;
 [System.Serializable]
 public class Gene
 {
-    public char Allele;
+    public Vector3 Allele;
     
     public Gene()
     {
-        System.Random rnd = new System.Random();
-        Allele = (char) rnd.Next(97, 124);
-        if (Allele.Equals((char)123))
-            Allele = (char)32;
+        float x = Random.Range(-1f,1f);
+        float y = Random.Range(-1f,1f);
+        float z = Random.Range(-1f,1f);
+        Vector3 randomVector = new Vector3(x, y, z);
+        Allele = randomVector.normalized;
     }
 
     public bool Equals(Gene otherGene)
