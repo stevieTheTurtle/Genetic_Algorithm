@@ -1,5 +1,3 @@
-
-using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
 
 [System.Serializable]
@@ -9,8 +7,9 @@ public class Gene
     
     public Gene()
     {
-        Allele = (char) Random.Range(97, 125);
-        if (Allele.Equals((char)124))
+        System.Random rnd = new System.Random();
+        Allele = (char) rnd.Next(97, 124);
+        if (Allele.Equals((char)123))
             Allele = (char)32;
     }
 
