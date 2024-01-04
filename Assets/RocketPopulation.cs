@@ -8,20 +8,13 @@ public class RocketPopulation : MonoBehaviour
     public int populationSize;
     public float averageFitness;
     public RocketIndividual bestRocket;
-    public int generationNumber;
     public List<RocketIndividual> individuals;
     
     private void Start()
     {
-        populationSize = 0;
+        populationSize = FindObjectOfType<RocketSimulationManager>().GetPopulationSize();
         averageFitness = 0f;
-        generationNumber = 0;
         bestRocket = null;
-    }
-
-    public void Reset()
-    {
-        Start();
     }
 
     public float AverageFitness()
@@ -39,9 +32,9 @@ public class RocketPopulation : MonoBehaviour
         return averageFitness;
     }
 
-    public Individual BestIndividual()
+    public RocketIndividual BestIndividual()
     {
-        Individual bestIndividual = individuals[0];
+        RocketIndividual bestIndividual = individuals[0];
         
         for (int i = 1; i < populationSize; i++)
             if (bestIndividual.Fitness < individuals[i].Fitness)
@@ -50,7 +43,7 @@ public class RocketPopulation : MonoBehaviour
         return bestIndividual;
     }
     
-    public void SpawnPopulation(GameObject individualPrefab, int populationSize)
+    public void SpawnPopulationRandom(GameObject individualPrefab, int populationSize)
     {
         individuals = new List<RocketIndividual>();
         this.populationSize = populationSize;
@@ -59,34 +52,21 @@ public class RocketPopulation : MonoBehaviour
             SpawnIndividual(individualPrefab);
         }
     }
-    
-    /*
-    public void SpawnPopulation(GameObject individualPrefab, DNA[] populationGenotypes)
-    {
-        individuals = new List<RocketIndividual>();
-        for (int i = 0; i < populationGenotypes.Length; i++)
-        {
-            SpawnIndividual(individualPrefab, populationGenotypes[i]);
-        }
-    }
-    */
 
     public RocketIndividual SpawnIndividual(GameObject individualPrefab)
     {
         GameObject individualObj = Instantiate(individualPrefab, Vector3.zero, Quaternion.identity);
         individualObj.transform.parent = this.transform;
+        individualObj.name = "Rocket #" +individuals.Count;
         
         RocketIndividual individual = individualObj.GetComponent<RocketIndividual>();
         individuals.Add(individual);
         
         return individual;
     }
-    
-    public RocketIndividual SpawnIndividual(GameObject individualPrefab, DNA genotype)
-    {
-        RocketIndividual individual = SpawnIndividual(individualPrefab);
-        individual.genotype = genotype;
 
-        return individual;
+    public void ChangeIndividualGenotype(RocketIndividual rocketIndividual,DNA newGenotype)
+    {
+        rocketIndividual.genotype = newGenotype;
     }
 }
