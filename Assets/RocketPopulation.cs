@@ -45,12 +45,15 @@ public class RocketPopulation : MonoBehaviour
     
     public void SpawnPopulationRandom(GameObject individualPrefab, int populationSize)
     {
+        
         individuals = new List<RocketIndividual>();
         this.populationSize = populationSize;
+        
         for (int i = 0; i < this.populationSize; i++)
         {
             SpawnIndividual(individualPrefab);
         }
+        
     }
 
     public RocketIndividual SpawnIndividual(GameObject individualPrefab)
@@ -60,13 +63,15 @@ public class RocketPopulation : MonoBehaviour
         individualObj.name = "Rocket #" +individuals.Count;
         
         RocketIndividual individual = individualObj.GetComponent<RocketIndividual>();
+        individual.SetGenotype(new DNA(FindObjectOfType<RocketSimulationManager>().generationEvolutionFixedFrames, true));
         individuals.Add(individual);
+        individual.Reset();
         
         return individual;
     }
 
     public void ChangeIndividualGenotype(RocketIndividual rocketIndividual,DNA newGenotype)
     {
-        rocketIndividual.genotype = newGenotype;
+        rocketIndividual.SetGenotype(newGenotype);
     }
 }

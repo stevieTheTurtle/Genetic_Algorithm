@@ -223,7 +223,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 75}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -259,12 +259,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   populationSize: 1000
   mutationRate: 0.01
-  generationEvolutionFixedFrames: 500
-  timeScale: 15
+  generationEvolutionFixedFrames: 1000
+  timeScale: 10
   rocketIndividualPrefab: {fileID: 6367451109565635821, guid: f066df60fdbd1284eb7a9b72eb11bcd8, type: 3}
   rocketTarget: {fileID: 326824813}
   averageFitness: 0
   bestRocketIndividual: {fileID: 0}
+  bestRocketIndividualFitness: 0
   generationNumber: 0
   population: {fileID: 0}
 --- !u!4 &503971097

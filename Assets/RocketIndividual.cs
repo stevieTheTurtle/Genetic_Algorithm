@@ -9,7 +9,7 @@ public class RocketIndividual : MonoBehaviour
     [SerializeField] private float mass;
     [SerializeField] private float genotypeLength;
 
-    public DNA genotype;
+    public DNA genotype { get; private set; }
     public float Fitness { get; private set; }
     private int genotypeIndex;
     
@@ -34,23 +34,17 @@ public class RocketIndividual : MonoBehaviour
         acceleration = Vector3.zero;
         velocity = Vector3.zero;
     }
-    
-    private void Start()
-    {
-        Reset();
-        SetGenotype(new DNA(FindObjectOfType<RocketSimulationManager>().generationEvolutionFixedFrames));
-    }
 
     private void Update()
     {
-        this.transform.forward = velocity.normalized;
+        if(velocity.magnitude >= 0.01f)
+            this.transform.forward = velocity.normalized;
     }
 
     private void FixedUpdate()
     {
         if (genotypeIndex >= genotype.genes.Length)
         {
-            throw new Exception("Genes array out of bound!");
             Debug.LogError("Genes array out of bound!");
             return;
         }

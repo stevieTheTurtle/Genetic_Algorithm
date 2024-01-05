@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using Random = Unity.Mathematics.Random;
 using UnityEngine.Profiling;
+using UnityEngine.Serialization;
 
 public class RocketSimulationManager : MonoBehaviour
 {
@@ -10,15 +12,17 @@ public class RocketSimulationManager : MonoBehaviour
     
     [SerializeField] private float mutationRate = 0.01f;
     [SerializeField] public int generationEvolutionFixedFrames = 1000;
-    [SerializeField] public float timeScale = 1;
+    [SerializeField] [Range(0.1f, 50f)] public float timeScale = 1;
     
     [Header("Simulation Environment")]
     [SerializeField] public GameObject rocketIndividualPrefab;
     [SerializeField] private Transform rocketTarget;
+    private Vector3 rocketTargetPos;
 
     [Header("DEBUG")]
     [SerializeField] private float averageFitness;
     [SerializeField] private RocketIndividual bestRocketIndividual;
+    [SerializeField] private float bestRocketIndividualFitness;
     [SerializeField] private int generationNumber;
     
     private GameObject populationObject;
@@ -26,6 +30,8 @@ public class RocketSimulationManager : MonoBehaviour
     [SerializeField] private RocketPopulation population;
     
     private int _frameCounter = 0;
+    
+    private Random _random;
 
     public int GetPopulationSize()
     {
@@ -38,9 +44,18 @@ public class RocketSimulationManager : MonoBehaviour
         Physics.simulationMode = SimulationMode.Script;
         Time.timeScale = timeScale;
         
+        _random = new Random((uint) System.DateTime.Now.Ticks);
+        
         populationObject = new GameObject("PopulationManager");
         population = populationObject.AddComponent<RocketPopulation>();
         population.SpawnPopulationRandom(rocketIndividualPrefab, populationSize);
+
+        rocketTargetPos = rocketTarget.transform.position;
+    }
+
+    private void Update()
+    {
+        Time.timeScale = timeScale;
     }
 
     private void FixedUpdate()
@@ -55,11 +70,14 @@ public class RocketSimulationManager : MonoBehaviour
             //DEBUG
             averageFitness = population.AverageFitness();
             bestRocketIndividual = population.BestIndividual();
+            bestRocketIndividualFitness = bestRocketIndividual.Fitness;
             
             //Making next generation through parent selection and reproduction
             Profiler.BeginSample("SelectMatingPool()");
             List<RocketIndividual> matingPool = SelectMatingPool();
             Profiler.EndSample();
+            
+            Debug.Log("Mating Pool individuals number (Generation #"+generationNumber+") = "+matingPool.Count);
             
             Profiler.BeginSample("PerformReproduction()");
             PerformReproduction(matingPool);
@@ -89,20 +107,43 @@ public class RocketSimulationManager : MonoBehaviour
     {
         foreach (var rocketIndividual in population.individuals)
         {
-            float d = Vector3.Distance(rocketTarget.transform.position, rocketIndividual.transform.position);
-            rocketIndividual.SetFitness(1000/d);
-            //rocketIndividual.SetFitness(Mathf.Pow(1000 / d, 2));
+            //DISTANCE FROM TARGET
+            float d = Vector3.Distance(rocketTargetPos, rocketIndividual.transform.position) - rocketTarget.localScale.x;
+            //normalize d parameter to be between 0f and 1f
+            d /= Vector3.Distance(rocketTargetPos, Vector3.zero) - rocketTarget.localScale.x;
+            d = Mathf.Clamp(d, 0f, 1f);
+            
+            //FINAL FITNESS FUNCTION
+            rocketIndividual.SetFitness(Mathf.Pow(1-d, 0.5f));
         }
     }
     
     
     private List<RocketIndividual> SelectMatingPool()
     {
+        population.individuals.Sort((x, y) => y.Fitness.CompareTo(x.Fitness));
+        
+        List<RocketIndividual> matingPool = new List<RocketIndividual>();
+        float probabilityCounter = populationSize / 10;
+        
+        for (int i = 0; i < populationSize / 10; i++)
+        {
+            probabilityCounter /= 2;
+            for (int j = 0; j < probabilityCounter; j++)
+            {
+                matingPool.Add(population.individuals[i]);
+            }
+        }
+        
+        return matingPool;
+        
+        /*
         //Construct the mating pool, giving more probability to higher fitness individual to reproduce
         List<RocketIndividual> matingPool = new List<RocketIndividual>();
         
         for (int i = 0; i < populationSize; i++)
         {
+            
             int n = (int) (population.individuals[i].Fitness * 100f);
             for (int j = 0; j < n; j++)
             {
@@ -111,6 +152,7 @@ public class RocketSimulationManager : MonoBehaviour
         }
 
         return matingPool;
+        */
     }
     
     
@@ -139,8 +181,8 @@ public class RocketSimulationManager : MonoBehaviour
             int b = 0;
             while (a == b)
             {
-                a = Random.Range(0, matingPool.Count);
-                b = Random.Range(0, matingPool.Count);
+                a = _random.NextInt(0, matingPool.Count);
+                b = _random.NextInt(0, matingPool.Count);
             }
 
             DNA genotypeA = matingPool[a].genotype;
