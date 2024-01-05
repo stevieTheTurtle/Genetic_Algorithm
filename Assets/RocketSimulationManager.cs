@@ -146,13 +146,20 @@ public class RocketSimulationManager : MonoBehaviour
             DNA genotypeA = matingPool[a].genotype;
             DNA genotypeB = matingPool[b].genotype;
             
+            Profiler.BeginSample("Crossover()");
             DNA childGenotype = genotypeA.Crossover(genotypeB);
+            Profiler.EndSample();
             
+            Profiler.BeginSample("Mutate()");
             childGenotype.Mutate(mutationRate);
+            Profiler.EndSample();
             
+            Profiler.BeginSample("ChangeIndividualGenotype()");
             population.ChangeIndividualGenotype(population.individuals[i], childGenotype);
+            Profiler.EndSample();
         }
         
         generationNumber++;
     }
+    
 }

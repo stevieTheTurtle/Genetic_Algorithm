@@ -18,17 +18,5 @@ public class Gene
         Vector3 randomVector = new Vector3(x, y, z);
         Allele = randomVector.normalized * Random.Range(0f, maxForce);
     }
-
-    public bool Equals(Gene otherGene)
-    {
-        if (Allele.Equals(otherGene.Allele))
-            return true;
-        else
-            return false;
-    }
-
-    public override string ToString()
-    {
-        return Allele.ToString();
-    }
+    
 }

@@ -55,7 +55,7 @@ public class RocketIndividual : MonoBehaviour
             return;
         }
         
-        Vector3 phenotypeForce = genotype.genes[genotypeIndex].Allele;
+        Vector3 phenotypeForce = genotype.genes[genotypeIndex];
         AddForce(phenotypeForce);
         genotypeIndex++;
         
