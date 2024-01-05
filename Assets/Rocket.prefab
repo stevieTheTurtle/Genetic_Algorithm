@@ -436,8 +436,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mass: 1000
   genotypeLength: 0
-  genotype:
-    genes: []
   acceleration: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
 --- !u!1 &6822143647596017699
@@ -597,7 +595,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 5
+  m_Time: 2
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3

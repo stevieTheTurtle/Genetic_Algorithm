@@ -12,12 +12,19 @@ public class RocketIndividual : MonoBehaviour
     public DNA genotype { get; private set; }
     public float Fitness { get; private set; }
     private int genotypeIndex;
-    
+
+    private TrailRenderer _trailRenderer;
     
     [Header("DEBUG")] 
     [SerializeField] private Vector3 acceleration;
     [SerializeField] private Vector3 velocity;
-    
+
+    private void Start()
+    {
+        _trailRenderer = GetComponentInChildren<TrailRenderer>();
+        Reset();
+    }
+
     public void SetFitness(float fitness)
     {
         this.Fitness = fitness;
@@ -25,6 +32,8 @@ public class RocketIndividual : MonoBehaviour
 
     public void Reset()
     {
+        _trailRenderer.Clear();
+        
         Fitness = 0f;
         genotypeIndex = 0;
 
@@ -65,5 +74,10 @@ public class RocketIndividual : MonoBehaviour
     public void AddForce(Vector3 force)
     {
         acceleration += force / mass;
+    }
+
+    public Vector3 GetVelocity()
+    {
+        return velocity;
     }
 }

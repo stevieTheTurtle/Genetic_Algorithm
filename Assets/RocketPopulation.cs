@@ -65,7 +65,6 @@ public class RocketPopulation : MonoBehaviour
         RocketIndividual individual = individualObj.GetComponent<RocketIndividual>();
         individual.SetGenotype(new DNA(FindObjectOfType<RocketSimulationManager>().generationEvolutionFixedFrames, true));
         individuals.Add(individual);
-        individual.Reset();
         
         return individual;
     }

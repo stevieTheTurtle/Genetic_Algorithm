@@ -17,7 +17,6 @@ public class RocketSimulationManager : MonoBehaviour
     [Header("Simulation Environment")]
     [SerializeField] public GameObject rocketIndividualPrefab;
     [SerializeField] private Transform rocketTarget;
-    private Vector3 rocketTargetPos;
 
     [Header("DEBUG")]
     [SerializeField] private float averageFitness;
@@ -49,8 +48,6 @@ public class RocketSimulationManager : MonoBehaviour
         populationObject = new GameObject("PopulationManager");
         population = populationObject.AddComponent<RocketPopulation>();
         population.SpawnPopulationRandom(rocketIndividualPrefab, populationSize);
-
-        rocketTargetPos = rocketTarget.transform.position;
     }
 
     private void Update()
@@ -77,7 +74,7 @@ public class RocketSimulationManager : MonoBehaviour
             List<RocketIndividual> matingPool = SelectMatingPool();
             Profiler.EndSample();
             
-            Debug.Log("Mating Pool individuals number (Generation #"+generationNumber+") = "+matingPool.Count);
+            //Debug.Log("Mating Pool individuals number (Generation #"+generationNumber+") = "+matingPool.Count);
             
             Profiler.BeginSample("PerformReproduction()");
             PerformReproduction(matingPool);
@@ -108,13 +105,18 @@ public class RocketSimulationManager : MonoBehaviour
         foreach (var rocketIndividual in population.individuals)
         {
             //DISTANCE FROM TARGET
-            float d = Vector3.Distance(rocketTargetPos, rocketIndividual.transform.position) - rocketTarget.localScale.x;
+            float d = Vector3.Distance(rocketTarget.position, rocketIndividual.transform.position) - rocketTarget.localScale.x;
             //normalize d parameter to be between 0f and 1f
-            d /= Vector3.Distance(rocketTargetPos, Vector3.zero) - rocketTarget.localScale.x;
+            d /= Vector3.Distance(rocketTarget.position, Vector3.zero) - rocketTarget.localScale.x;
             d = Mathf.Clamp(d, 0f, 1f);
             
+            //DIRECTION TO TARGET
+            Vector3 distanceVector = rocketTarget.position - rocketIndividual.transform.position;
+            float dirAffinity = Vector3.Dot(rocketIndividual.GetVelocity().normalized, distanceVector);
+            dirAffinity = Mathf.Clamp(dirAffinity, 0f, 1f);
+            
             //FINAL FITNESS FUNCTION
-            rocketIndividual.SetFitness(Mathf.Pow(1-d, 0.5f));
+            rocketIndividual.SetFitness(Mathf.Pow((1-d) * dirAffinity, 0.5f));
         }
     }
     
@@ -124,11 +126,11 @@ public class RocketSimulationManager : MonoBehaviour
         population.individuals.Sort((x, y) => y.Fitness.CompareTo(x.Fitness));
         
         List<RocketIndividual> matingPool = new List<RocketIndividual>();
-        float probabilityCounter = populationSize / 10;
+        float probabilityCounter = populationSize / 10f;
         
-        for (int i = 0; i < populationSize / 10; i++)
+        for (int i = 0; i < populationSize / 10f; i++)
         {
-            probabilityCounter /= 2;
+            probabilityCounter /= 3;
             for (int j = 0; j < probabilityCounter; j++)
             {
                 matingPool.Add(population.individuals[i]);
