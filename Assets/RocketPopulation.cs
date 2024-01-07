@@ -23,7 +23,7 @@ public class RocketPopulation : MonoBehaviour
         
         for (int i = 0; i < populationSize; i++)
         {
-            averageFitness += individuals[i].Fitness;
+            averageFitness += individuals[i].GetFitness();
         }
         averageFitness /= populationSize;
 
@@ -37,7 +37,7 @@ public class RocketPopulation : MonoBehaviour
         RocketIndividual bestIndividual = individuals[0];
         
         for (int i = 1; i < populationSize; i++)
-            if (bestIndividual.Fitness < individuals[i].Fitness)
+            if (bestIndividual.GetFitness() < individuals[i].GetFitness())
                 bestIndividual = individuals[i];
 
         return bestIndividual;

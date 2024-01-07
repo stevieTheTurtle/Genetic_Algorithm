@@ -11,10 +11,10 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - Obstacles
+  - Rockets
+  - Target
+  - WorldBounds
   - 
   - 
   - 

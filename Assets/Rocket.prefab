@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2150633476767719712}
   - component: {fileID: 9039256568826899132}
   - component: {fileID: 5450705442552784717}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Wings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 8098311989958603554}
   - component: {fileID: 5934958168327973000}
   - component: {fileID: 335072996781573448}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Engine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -177,7 +177,7 @@ GameObject:
   - component: {fileID: 166483691000052364}
   - component: {fileID: 5751018554855329179}
   - component: {fileID: 3720997974714408787}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Tip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -260,7 +260,7 @@ GameObject:
   - component: {fileID: 162040949601717809}
   - component: {fileID: 7267788000654639965}
   - component: {fileID: 6838219859550147344}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Window
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -344,7 +344,8 @@ GameObject:
   - component: {fileID: 1033636266911360871}
   - component: {fileID: 7156451659281357100}
   - component: {fileID: 6220459860152799638}
-  m_Layer: 0
+  - component: {fileID: 8392787243873534683}
+  m_Layer: 7
   m_Name: Rocket
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -435,9 +436,43 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mass: 1000
-  genotypeLength: 0
+  boundsLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  obstaclesLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
   acceleration: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
+  hasCrashed: 0
+  hasArrived: 0
+  Fitness: 0
+--- !u!136 &8392787243873534683
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6367451109565635821}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.75
+  m_Height: 3.21
+  m_Direction: 2
+  m_Center: {x: 0.012333125, y: -0.000013411045, z: -0.63158774}
 --- !u!1 &6822143647596017699
 GameObject:
   m_ObjectHideFlags: 0
@@ -449,7 +484,7 @@ GameObject:
   - component: {fileID: 9135847925050219282}
   - component: {fileID: 71146503668127618}
   - component: {fileID: 591025174881167196}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Window.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -531,7 +566,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6537111819084117829}
   - component: {fileID: 5302060545945237669}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -595,7 +630,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 2
+  m_Time: 4
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
@@ -612,6 +647,15 @@ TrailRenderer:
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4

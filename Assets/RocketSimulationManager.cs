@@ -37,10 +37,8 @@ public class RocketSimulationManager : MonoBehaviour
         return populationSize;
     }
     
-    // Start is called before the first frame update
     void Awake()
     {
-        Physics.simulationMode = SimulationMode.Script;
         Time.timeScale = timeScale;
         
         _random = new Random((uint) System.DateTime.Now.Ticks);
@@ -53,6 +51,9 @@ public class RocketSimulationManager : MonoBehaviour
     private void Update()
     {
         Time.timeScale = timeScale;
+        
+        //For trail renderer DEBUG purposes
+        CalculateFitness();
     }
 
     private void FixedUpdate()
@@ -67,14 +68,14 @@ public class RocketSimulationManager : MonoBehaviour
             //DEBUG
             averageFitness = population.AverageFitness();
             bestRocketIndividual = population.BestIndividual();
-            bestRocketIndividualFitness = bestRocketIndividual.Fitness;
+            bestRocketIndividualFitness = bestRocketIndividual.GetFitness();
             
             //Making next generation through parent selection and reproduction
             Profiler.BeginSample("SelectMatingPool()");
             List<RocketIndividual> matingPool = SelectMatingPool();
             Profiler.EndSample();
             
-            //Debug.Log("Mating Pool individuals number (Generation #"+generationNumber+") = "+matingPool.Count);
+            Debug.Log("Mating Pool individuals number (Generation #"+generationNumber+") = "+matingPool.Count);
             
             Profiler.BeginSample("PerformReproduction()");
             PerformReproduction(matingPool);
@@ -106,24 +107,39 @@ public class RocketSimulationManager : MonoBehaviour
         {
             //DISTANCE FROM TARGET
             float d = Vector3.Distance(rocketTarget.position, rocketIndividual.transform.position) - rocketTarget.localScale.x;
+            float pathDistance = Vector3.Distance(rocketTarget.position, Vector3.zero) - rocketTarget.localScale.x;
             //normalize d parameter to be between 0f and 1f
-            d /= Vector3.Distance(rocketTarget.position, Vector3.zero) - rocketTarget.localScale.x;
+            d = d / pathDistance;
             d = Mathf.Clamp(d, 0f, 1f);
             
             //DIRECTION TO TARGET
             Vector3 distanceVector = rocketTarget.position - rocketIndividual.transform.position;
-            float dirAffinity = Vector3.Dot(rocketIndividual.GetVelocity().normalized, distanceVector);
-            dirAffinity = Mathf.Clamp(dirAffinity, 0f, 1f);
+            float dirAffinity = Vector3.Dot(rocketIndividual.GetVelocity().normalized, distanceVector.normalized);
+            dirAffinity = (dirAffinity + 1f) / 2f;
+            
+            //VELOCITY & PROXIMITY
+            //float velocityProximityModifier = 1f / (rocketIndividual.GetVelocity().magnitude * d);
+            
+            //OBSTACLE HIT
+            float obstacleHitModifier = 1f;
+            if (rocketIndividual.HasCrashed()) 
+                obstacleHitModifier = 0.1f;
+            
+            //TARGET HIT
+            float targetHitModifier = 1f;
+            if (rocketIndividual.HasArrived())
+                targetHitModifier = 2f;
             
             //FINAL FITNESS FUNCTION
-            rocketIndividual.SetFitness(Mathf.Pow((1-d) * dirAffinity, 0.5f));
+            float fitness = ((1 - d) + dirAffinity) / 2f * obstacleHitModifier * targetHitModifier;
+            rocketIndividual.SetFitness(fitness);
         }
     }
     
     
     private List<RocketIndividual> SelectMatingPool()
     {
-        population.individuals.Sort((x, y) => y.Fitness.CompareTo(x.Fitness));
+        population.individuals.Sort((x, y) => y.GetFitness().CompareTo(x.GetFitness()));
         
         List<RocketIndividual> matingPool = new List<RocketIndividual>();
         float probabilityCounter = populationSize / 10f;
@@ -138,23 +154,6 @@ public class RocketSimulationManager : MonoBehaviour
         }
         
         return matingPool;
-        
-        /*
-        //Construct the mating pool, giving more probability to higher fitness individual to reproduce
-        List<RocketIndividual> matingPool = new List<RocketIndividual>();
-        
-        for (int i = 0; i < populationSize; i++)
-        {
-            
-            int n = (int) (population.individuals[i].Fitness * 100f);
-            for (int j = 0; j < n; j++)
-            {
-                matingPool.Add(population.individuals[i]);
-            }
-        }
-
-        return matingPool;
-        */
     }
     
     
