@@ -5,26 +5,28 @@ using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
+[Serializable]
 public class RocketIndividual : MonoBehaviour
 {
     [Header("Simulation Parameters")]
     [SerializeField] private float mass;
     [SerializeField] private LayerMask boundsLayer;
     [SerializeField] private LayerMask obstaclesLayer;
-    [SerializeField] private LayerMask targetLayer; 
-
-    public DNA genotype { get; private set; }
-    private int genotypeIndex;
+    [SerializeField] private LayerMask targetLayer;
 
     private TrailRenderer _trailRenderer;
     //private Rigidbody _rigidBody;
-    
+
     [Header("DEBUG")] 
     [SerializeField] private Vector3 acceleration;
     [SerializeField] private Vector3 velocity;
     [SerializeField] private bool hasCrashed;
     [SerializeField] private bool hasArrived;
     [SerializeField] private float Fitness;
+    
+    [SerializeField] private int id;
+    [SerializeField] private int genotypeIndex;
+    [SerializeField] private DNA genotype;
 
     private void Start()
     {
@@ -118,27 +120,33 @@ public class RocketIndividual : MonoBehaviour
             return;
         }
         
-        Vector3 phenotypeForce = genotype.genes[genotypeIndex];
-        AddForce(phenotypeForce);
+        //PHENOTYPE DEFINITION, which is force applied every simulation step
+        acceleration += genotype.genes[genotypeIndex] / mass;
         genotypeIndex++;
         
-        //_rigidBody.AddForce(phenotypeForce, ForceMode.Acceleration);
-
-        //this.acceleration = _rigidBody.GetAccumulatedForce();
-        //this.velocity = _rigidBody.velocity;
-
+        //Apply motion, calculating velocity and position
         this.velocity += acceleration * Time.fixedDeltaTime;
         this.transform.position += this.velocity * Time.fixedDeltaTime;
     }
 
+    public void SetId(int newId)
+    {
+        id = newId;
+    }
+    
+    public int GetId()
+    {
+        return id;
+    }
+
+    public DNA GetGenotype()
+    {
+        return genotype;
+    }
+    
     public void SetGenotype(DNA newGenotype)
     {
         genotype = newGenotype;
-    }
-
-    public void AddForce(Vector3 force)
-    {
-        acceleration += force / mass;
     }
 
     public Vector3 GetVelocity()

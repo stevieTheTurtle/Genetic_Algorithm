@@ -4,7 +4,7 @@ using Unity.Collections;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-[System.Serializable]
+[Serializable]
 public class DNA
 {
     public float maxForce = 30f;

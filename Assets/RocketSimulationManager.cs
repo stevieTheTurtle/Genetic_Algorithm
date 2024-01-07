@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Leguar.TotalJSON;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 using UnityEngine.Profiling;
-using UnityEngine.Serialization;
 
+[Serializable]
 public class RocketSimulationManager : MonoBehaviour
 {
     [Header("Simulation Parameters")] [SerializeField]
-    private int populationSize = 500;
+    private int populationSize = 1000;
     
     [SerializeField] private float mutationRate = 0.01f;
-    [SerializeField] public int generationEvolutionFixedFrames = 1000;
+    [SerializeField] public int simulationStepsPerGeneration = 1000;
     [SerializeField] [Range(0.1f, 50f)] public float timeScale = 1;
     
     [Header("Simulation Environment")]
@@ -19,17 +21,15 @@ public class RocketSimulationManager : MonoBehaviour
     [SerializeField] private Transform rocketTarget;
 
     [Header("DEBUG")]
-    [SerializeField] private float averageFitness;
-    [SerializeField] private RocketIndividual bestRocketIndividual;
-    [SerializeField] private float bestRocketIndividualFitness;
     [SerializeField] private int generationNumber;
+    [SerializeField] private float averageFitness;
+    [SerializeField] private float bestRocketIndividualFitness;
+    [SerializeField] private List<RocketIndividual> bestRocketIndividuals;
     
     private GameObject populationObject;
+    private RocketPopulation population;
     
-    [SerializeField] private RocketPopulation population;
-    
-    private int _frameCounter = 0;
-    
+    private int _frameCounter;
     private Random _random;
 
     public int GetPopulationSize()
@@ -40,7 +40,7 @@ public class RocketSimulationManager : MonoBehaviour
     void Awake()
     {
         Time.timeScale = timeScale;
-        
+        _frameCounter = 0;
         _random = new Random((uint) System.DateTime.Now.Ticks);
         
         populationObject = new GameObject("PopulationManager");
@@ -58,17 +58,19 @@ public class RocketSimulationManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_frameCounter >= generationEvolutionFixedFrames)
+        if (_frameCounter >= simulationStepsPerGeneration)
         {
             //Fitness calculation of current generation
             Profiler.BeginSample("CalculateFitness");
             CalculateFitness();
             Profiler.EndSample();
             
+            //SAVE INFO TO FILE
+            population.SaveGenerationToFile(simulationStepsPerGeneration, generationNumber, 5);
+            
             //DEBUG
             averageFitness = population.AverageFitness();
-            bestRocketIndividual = population.BestIndividual();
-            bestRocketIndividualFitness = bestRocketIndividual.GetFitness();
+            bestRocketIndividuals = population.BestIndividuals(5);
             
             //Making next generation through parent selection and reproduction
             Profiler.BeginSample("SelectMatingPool()");
@@ -89,16 +91,6 @@ public class RocketSimulationManager : MonoBehaviour
         }
 
         _frameCounter++;
-    }
-    
-    void OnGUI()
-    {
-        GUIStyle fontSize = new GUIStyle(GUI.skin.GetStyle("label"));
-        fontSize.fontSize = 18;
-        GUI.Label(new Rect(100, 150, 400, 50), "bestIndividual = " + new string(bestRocketIndividual.genotype.ToString()), fontSize);
-        GUI.Label(new Rect(100, 200, 400, 50), "averageFitness = " + averageFitness, fontSize);
-        GUI.Label(new Rect(100, 250, 400, 50), "generationNumber = " + generationNumber, fontSize);
-        GUI.Label(new Rect(100, 300, 400, 50), "FramesUntilNextGeneration = " + (generationEvolutionFixedFrames - _frameCounter), fontSize);
     }
 
     private void CalculateFitness()
@@ -123,7 +115,7 @@ public class RocketSimulationManager : MonoBehaviour
             //OBSTACLE HIT
             float obstacleHitModifier = 1f;
             if (rocketIndividual.HasCrashed()) 
-                obstacleHitModifier = 0.1f;
+                obstacleHitModifier = 0.3f;
             
             //TARGET HIT
             float targetHitModifier = 1f;
@@ -131,7 +123,7 @@ public class RocketSimulationManager : MonoBehaviour
                 targetHitModifier = 2f;
             
             //FINAL FITNESS FUNCTION
-            float fitness = ((1 - d) + dirAffinity) / 2f * obstacleHitModifier * targetHitModifier;
+            float fitness = Mathf.Pow(((1 - d) + dirAffinity) / 2f, 3f) * obstacleHitModifier * targetHitModifier;
             rocketIndividual.SetFitness(fitness);
         }
     }
@@ -186,8 +178,8 @@ public class RocketSimulationManager : MonoBehaviour
                 b = _random.NextInt(0, matingPool.Count);
             }
 
-            DNA genotypeA = matingPool[a].genotype;
-            DNA genotypeB = matingPool[b].genotype;
+            DNA genotypeA = matingPool[a].GetGenotype();
+            DNA genotypeB = matingPool[b].GetGenotype();
             
             Profiler.BeginSample("Crossover()");
             DNA childGenotype = genotypeA.Crossover(genotypeB);

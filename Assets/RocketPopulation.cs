@@ -1,20 +1,33 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using Leguar.TotalJSON;
 using UnityEngine;
-using UnityEngine.Serialization;
 
+[Serializable]
+public struct GenerationSave
+{
+    [SerializeField] int simulationStepsPerGeneration;
+    [SerializeField] int generation; 
+    [SerializeField] List<RocketIndividual> bestIndividuals;
+    
+    public GenerationSave(int simStep, int gen, List<RocketIndividual> individuals)
+    {
+        simulationStepsPerGeneration = simStep;
+        generation = gen;
+        bestIndividuals = individuals;
+    }
+}
+
+[Serializable]
 public class RocketPopulation : MonoBehaviour
 {
     public int populationSize;
-    public float averageFitness;
-    public RocketIndividual bestRocket;
     public List<RocketIndividual> individuals;
     
     private void Start()
     {
         populationSize = FindObjectOfType<RocketSimulationManager>().GetPopulationSize();
-        averageFitness = 0f;
-        bestRocket = null;
     }
 
     public float AverageFitness()
@@ -26,21 +39,16 @@ public class RocketPopulation : MonoBehaviour
             averageFitness += individuals[i].GetFitness();
         }
         averageFitness /= populationSize;
-
-        this.averageFitness = averageFitness;
         
         return averageFitness;
     }
 
-    public RocketIndividual BestIndividual()
+    public List<RocketIndividual> BestIndividuals(int n)
     {
-        RocketIndividual bestIndividual = individuals[0];
-        
-        for (int i = 1; i < populationSize; i++)
-            if (bestIndividual.GetFitness() < individuals[i].GetFitness())
-                bestIndividual = individuals[i];
+        List<RocketIndividual> sortedIndividuals = new List<RocketIndividual>(individuals);
+        sortedIndividuals.Sort((x, y) => y.GetFitness().CompareTo(x.GetFitness()));
 
-        return bestIndividual;
+        return sortedIndividuals.GetRange(0,n);
     }
     
     public void SpawnPopulationRandom(GameObject individualPrefab, int populationSize)
@@ -48,10 +56,13 @@ public class RocketPopulation : MonoBehaviour
         
         individuals = new List<RocketIndividual>();
         this.populationSize = populationSize;
+
+        RocketIndividual individual;
         
         for (int i = 0; i < this.populationSize; i++)
         {
-            SpawnIndividual(individualPrefab);
+            individual = SpawnIndividual(individualPrefab);
+            individual.SetId(i);
         }
         
     }
@@ -63,7 +74,7 @@ public class RocketPopulation : MonoBehaviour
         individualObj.name = "Rocket #" +individuals.Count;
         
         RocketIndividual individual = individualObj.GetComponent<RocketIndividual>();
-        individual.SetGenotype(new DNA(FindObjectOfType<RocketSimulationManager>().generationEvolutionFixedFrames, true));
+        individual.SetGenotype(new DNA(FindObjectOfType<RocketSimulationManager>().simulationStepsPerGeneration, true));
         individuals.Add(individual);
         
         return individual;
@@ -72,5 +83,21 @@ public class RocketPopulation : MonoBehaviour
     public void ChangeIndividualGenotype(RocketIndividual rocketIndividual,DNA newGenotype)
     {
         rocketIndividual.SetGenotype(newGenotype);
+    }
+    
+    public void SaveGenerationToFile(int simulationSteps, int generationNumber, int nBest)
+    {
+        List<RocketIndividual> bestIndividuals = BestIndividuals(nBest);
+        
+        GenerationSave genStruct = new GenerationSave(simulationSteps, generationNumber, bestIndividuals);
+        
+        JSON json = JSON.Serialize(genStruct);
+        string jsonString = json.CreatePrettyString();
+        
+        string logPath = Application.dataPath + "/SimulationLogs/"+"Generation_" + generationNumber + ".json";
+        StreamWriter writer = File.CreateText(logPath);
+        
+        writer.Write(jsonString);
+        writer.Close();
     }
 }
