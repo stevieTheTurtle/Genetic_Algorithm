@@ -27,8 +27,7 @@ public class RocketDemoManager : MonoBehaviour
         populationObject = new GameObject("PopulationManager");
         population = populationObject.AddComponent<RocketPopulation>();
         
-        population.LoadGenerationFromFile(generationNumberToLoad,out simulationSteps);
-        population.SpawnPopulation(rocketIndividualPrefab);
+        population.LoadSpawnGenerationFromFile(rocketIndividualPrefab,generationNumberToLoad,out simulationSteps);
     }
 
     private void Update()

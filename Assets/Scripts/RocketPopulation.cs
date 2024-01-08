@@ -9,13 +9,13 @@ public struct GenerationSave
 {
     [SerializeField] public int simulationStepsPerGeneration;
     [SerializeField] public int generation; 
-    [SerializeField] public List<RocketIndividualSave> bestIndividuals;
+    [SerializeField] public List<RocketIndividualSave> bestIndividualsSave;
     
-    public GenerationSave(int simStep, int gen, List<RocketIndividualSave> individuals)
+    public GenerationSave(int simStep, int gen, List<RocketIndividualSave> individualsSave)
     {
         simulationStepsPerGeneration = simStep;
         generation = gen;
-        bestIndividuals = individuals;
+        bestIndividualsSave = individualsSave;
     }
 }
 
@@ -51,7 +51,7 @@ public class RocketPopulation : MonoBehaviour
         return sortedIndividuals.GetRange(0,n);
     }
     
-    public void SpawnPopulation(GameObject individualPrefab)
+    public void SpawnPopulation(GameObject individualPrefab, int simulationStepsPerGeneration)
     {
         if (individuals.Count == 0)
         {
@@ -64,12 +64,12 @@ public class RocketPopulation : MonoBehaviour
         RocketIndividual individual;
         for (int i = 0; i < this.populationSize; i++)
         {
-            individual = SpawnIndividual(individualPrefab);
+            individual = SpawnIndividual(individualPrefab, simulationStepsPerGeneration);
         }
         
     }
     
-    public void SpawnPopulationRandom(GameObject individualPrefab, int populationSize)
+    public void SpawnPopulationRandom(GameObject individualPrefab, int populationSize, int simulationStepsPerGeneration)
     {
         
         individuals = new List<RocketIndividual>();
@@ -79,20 +79,20 @@ public class RocketPopulation : MonoBehaviour
         
         for (int i = 0; i < this.populationSize; i++)
         {
-            individual = SpawnIndividual(individualPrefab);
+            individual = SpawnIndividual(individualPrefab, simulationStepsPerGeneration);
             individual.SetId(i);
         }
         
     }
 
-    public RocketIndividual SpawnIndividual(GameObject individualPrefab)
+    public RocketIndividual SpawnIndividual(GameObject individualPrefab, int simulationStepsPerGeneration)
     {
         GameObject individualObj = Instantiate(individualPrefab, Vector3.zero, Quaternion.identity);
         individualObj.transform.parent = this.transform;
         individualObj.name = "Rocket #" +individuals.Count;
         
         RocketIndividual individual = individualObj.GetComponent<RocketIndividual>();
-        individual.SetGenotype(new DNA(FindObjectOfType<RocketSimulationManager>().simulationStepsPerGeneration, true));
+        individual.SetGenotype(new DNA(simulationStepsPerGeneration, true));
         individuals.Add(individual);
         
         return individual;
@@ -127,7 +127,7 @@ public class RocketPopulation : MonoBehaviour
         writer.Close();
     }
     
-    public void LoadGenerationFromFile(int generationNumber, out int simulationSteps)
+    public void LoadSpawnGenerationFromFile(GameObject individualPrefab, int generationNumber, out int simulationSteps)
     {
         string logPath = Application.dataPath + "/SimulationLogs/"+"Generation_" + generationNumber + ".json";
 
@@ -146,15 +146,17 @@ public class RocketPopulation : MonoBehaviour
         JSON json = JSON.ParseString(jsonString);
         GenerationSave generationSave = json.Deserialize<GenerationSave>();
 
-        int i = 0;
-        foreach (var VARIABLE in COLLECTION)
-        {
-            
-            i++;
-        }
-        
-        individuals = generationSave.bestIndividuals;
+
+        generationNumber = generationSave.generation;
         simulationSteps = generationSave.simulationStepsPerGeneration;
+        
+        individuals = new List<RocketIndividual>();
+        foreach (RocketIndividualSave individualSave in generationSave.bestIndividualsSave)
+        {
+            RocketIndividual individual = SpawnIndividual(individualPrefab, simulationSteps);
+            individual.SetId(individualSave.ID);
+            individual.SetGenotype(individualSave.Genotype);
+        }
     }
     
 }

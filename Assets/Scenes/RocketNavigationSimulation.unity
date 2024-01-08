@@ -10065,7 +10065,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rocketIndividualPrefab: {fileID: 6367451109565635821, guid: f066df60fdbd1284eb7a9b72eb11bcd8, type: 3}
   rocketTarget: {fileID: 326824813}
-  generationNumberToLoad: 0
+  generationNumberToLoad: 12
   timeScale: 1
   simulationSteps: 0
 --- !u!4 &1082021209

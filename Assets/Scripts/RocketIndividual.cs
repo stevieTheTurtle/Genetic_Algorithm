@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+[Serializable]
 public struct RocketIndividualSave
 {
     [SerializeField] public int ID;
@@ -13,7 +14,7 @@ public struct RocketIndividualSave
     }
 }
 
-[Serializable]
+//[Serializable]
 public class RocketIndividual : MonoBehaviour
 {
     [Header("Simulation Parameters")]

@@ -43,7 +43,7 @@ public class RocketSimulationManager : MonoBehaviour
         
         populationObject = new GameObject("PopulationManager");
         population = populationObject.AddComponent<RocketPopulation>();
-        population.SpawnPopulationRandom(rocketIndividualPrefab, populationSize);
+        population.SpawnPopulationRandom(rocketIndividualPrefab, populationSize, simulationStepsPerGeneration);
     }
 
     private void Update()
