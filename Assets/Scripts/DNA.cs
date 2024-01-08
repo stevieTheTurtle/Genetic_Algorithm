@@ -27,6 +27,11 @@ public class DNA
     {
         _random = new Random((uint) System.DateTime.Now.Ticks);
     }
+
+    public DNA()
+    {
+        this.genes = null;
+    }
     
     public DNA(int genotypeLength, bool toRandomize)
     {

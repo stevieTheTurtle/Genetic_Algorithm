@@ -1,6 +1,18 @@
 using System;
 using UnityEngine;
 
+public struct RocketIndividualSave
+{
+    [SerializeField] public int ID;
+    [SerializeField] public DNA Genotype;
+
+    public RocketIndividualSave(int id, DNA genotype)
+    {
+        this.ID = id;
+        Genotype = genotype;
+    }
+}
+
 [Serializable]
 public class RocketIndividual : MonoBehaviour
 {
@@ -23,7 +35,7 @@ public class RocketIndividual : MonoBehaviour
     [SerializeField] private int id;
     [SerializeField] private int genotypeIndex;
     [SerializeField] private DNA genotype;
-    [SerializeField] private Planet[] _planets;
+    //[SerializeField] private Planet[] _planets;
 
     private void Start()
     {
@@ -40,7 +52,7 @@ public class RocketIndividual : MonoBehaviour
         //_rigidBody = GetComponent<Rigidbody>();
         _trailRenderer = GetComponentInChildren<TrailRenderer>();
 
-        _planets = FindObjectsByType<Planet>(FindObjectsSortMode.None);
+        //_planets = FindObjectsByType<Planet>(FindObjectsSortMode.None);
         
         Reset();
     }

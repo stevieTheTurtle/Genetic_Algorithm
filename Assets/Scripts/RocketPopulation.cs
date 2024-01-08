@@ -7,11 +7,11 @@ using UnityEngine;
 [Serializable]
 public struct GenerationSave
 {
-    [SerializeField] int simulationStepsPerGeneration;
-    [SerializeField] int generation; 
-    [SerializeField] List<RocketIndividual> bestIndividuals;
+    [SerializeField] public int simulationStepsPerGeneration;
+    [SerializeField] public int generation; 
+    [SerializeField] public List<RocketIndividualSave> bestIndividuals;
     
-    public GenerationSave(int simStep, int gen, List<RocketIndividual> individuals)
+    public GenerationSave(int simStep, int gen, List<RocketIndividualSave> individuals)
     {
         simulationStepsPerGeneration = simStep;
         generation = gen;
@@ -27,7 +27,7 @@ public class RocketPopulation : MonoBehaviour
     
     private void Start()
     {
-        populationSize = FindObjectOfType<RocketSimulationManager>().GetPopulationSize();
+        //populationSize = FindObjectOfType<RocketSimulationManager>().GetPopulationSize();
     }
 
     public float AverageFitness()
@@ -49,6 +49,24 @@ public class RocketPopulation : MonoBehaviour
         sortedIndividuals.Sort((x, y) => y.GetFitness().CompareTo(x.GetFitness()));
 
         return sortedIndividuals.GetRange(0,n);
+    }
+    
+    public void SpawnPopulation(GameObject individualPrefab)
+    {
+        if (individuals.Count == 0)
+        {
+            Debug.LogError("population.individuals.Count == 0!");
+            return;
+        }
+
+        this.populationSize = individuals.Count;
+        
+        RocketIndividual individual;
+        for (int i = 0; i < this.populationSize; i++)
+        {
+            individual = SpawnIndividual(individualPrefab);
+        }
+        
     }
     
     public void SpawnPopulationRandom(GameObject individualPrefab, int populationSize)
@@ -87,9 +105,17 @@ public class RocketPopulation : MonoBehaviour
     
     public void SaveGenerationToFile(int simulationSteps, int generationNumber, int nBest)
     {
+        List<RocketIndividualSave> individualSaves = new List<RocketIndividualSave>();
         List<RocketIndividual> bestIndividuals = BestIndividuals(nBest);
+
+        int i = 0;
+        foreach (RocketIndividual individual in bestIndividuals)
+        {
+            individualSaves.Add(new RocketIndividualSave(bestIndividuals[i].GetId(), bestIndividuals[i].GetGenotype()));
+            i++;
+        }
         
-        GenerationSave genStruct = new GenerationSave(simulationSteps, generationNumber, bestIndividuals);
+        GenerationSave genStruct = new GenerationSave(simulationSteps, generationNumber, individualSaves);
         
         JSON json = JSON.Serialize(genStruct);
         string jsonString = json.CreatePrettyString();
@@ -100,4 +126,35 @@ public class RocketPopulation : MonoBehaviour
         writer.Write(jsonString);
         writer.Close();
     }
+    
+    public void LoadGenerationFromFile(int generationNumber, out int simulationSteps)
+    {
+        string logPath = Application.dataPath + "/SimulationLogs/"+"Generation_" + generationNumber + ".json";
+
+        if (!File.Exists(logPath))
+        {
+            Debug.LogError(logPath+" - does not exists!");
+            simulationSteps = -1;
+            return;
+        }
+        
+        StreamReader reader = File.OpenText(logPath);
+        
+        string jsonString = reader.ReadToEnd();
+        reader.Close();
+
+        JSON json = JSON.ParseString(jsonString);
+        GenerationSave generationSave = json.Deserialize<GenerationSave>();
+
+        int i = 0;
+        foreach (var VARIABLE in COLLECTION)
+        {
+            
+            i++;
+        }
+        
+        individuals = generationSave.bestIndividuals;
+        simulationSteps = generationSave.simulationStepsPerGeneration;
+    }
+    
 }

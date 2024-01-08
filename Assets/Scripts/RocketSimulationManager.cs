@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using Leguar.TotalJSON;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 using UnityEngine.Profiling;
@@ -198,5 +196,4 @@ public class RocketSimulationManager : MonoBehaviour
         
         generationNumber++;
     }
-    
 }
