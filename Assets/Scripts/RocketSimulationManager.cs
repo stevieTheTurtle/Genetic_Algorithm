@@ -136,7 +136,7 @@ public class RocketSimulationManager : MonoBehaviour
         
         for (int i = 0; i < populationSize / 10f; i++)
         {
-            probabilityCounter /= 3;
+            probabilityCounter /= 2f;
             for (int j = 0; j < probabilityCounter; j++)
             {
                 matingPool.Add(population.individuals[i]);
