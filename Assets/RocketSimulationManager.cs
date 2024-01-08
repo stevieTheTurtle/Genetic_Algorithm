@@ -167,8 +167,10 @@ public class RocketSimulationManager : MonoBehaviour
             return;
         }
         
+        //1 individual to reproduce is the one with the best fitness
+        population.individuals[0] = bestRocketIndividuals[0];
         //Make next generation using crossover
-        for (int i = 0; i < populationSize; i++)
+        for (int i = 1; i < populationSize; i++)
         {
             int a = 0;
             int b = 0;

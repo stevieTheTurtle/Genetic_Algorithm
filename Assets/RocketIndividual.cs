@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [Serializable]
@@ -27,6 +23,7 @@ public class RocketIndividual : MonoBehaviour
     [SerializeField] private int id;
     [SerializeField] private int genotypeIndex;
     [SerializeField] private DNA genotype;
+    [SerializeField] private Planet[] _planets;
 
     private void Start()
     {
@@ -42,6 +39,8 @@ public class RocketIndividual : MonoBehaviour
 
         //_rigidBody = GetComponent<Rigidbody>();
         _trailRenderer = GetComponentInChildren<TrailRenderer>();
+
+        _planets = FindObjectsByType<Planet>(FindObjectsSortMode.None);
         
         Reset();
     }
@@ -119,10 +118,23 @@ public class RocketIndividual : MonoBehaviour
             Debug.LogError("Genes array out of bound!");
             return;
         }
+
+        acceleration = Vector3.zero;
         
         //PHENOTYPE DEFINITION, which is force applied every simulation step
-        acceleration += genotype.genes[genotypeIndex] / mass;
+        AddForce(genotype.genes[genotypeIndex]);
         genotypeIndex++;
+        
+        /*
+        Vector3 r;
+        //Adding PLANETS FORCEs
+        foreach (Planet p in _planets)
+        {
+            r = p.transform.position - this.transform.position;
+            AddForce(6.67e-11f * p.GetMass() * this.mass / Mathf.Pow(r.magnitude, 2f) * r.normalized);
+            //Debug.DrawLine(this.transform.position, p.transform.position);
+        }
+        */
         
         //Apply motion, calculating velocity and position
         this.velocity += acceleration * Time.fixedDeltaTime;
@@ -162,5 +174,10 @@ public class RocketIndividual : MonoBehaviour
     public bool HasArrived()
     {
         return hasArrived;
+    }
+
+    public void AddForce(Vector3 force)
+    {
+        acceleration += force / mass;
     }
 }

@@ -7,7 +7,7 @@ using Random = Unity.Mathematics.Random;
 [Serializable]
 public class DNA
 {
-    public float maxForce = 30f;
+    public float maxForce = 1e4f;
     public Vector3[] genes;
 
     private Random _random;
