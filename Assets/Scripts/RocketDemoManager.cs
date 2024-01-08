@@ -1,33 +1,29 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class RocketDemoManager : MonoBehaviour
 {
     [Header("Simulation Environment")]
     [SerializeField] public GameObject rocketIndividualPrefab;
     [SerializeField] private Transform rocketTarget;
-
-    [Header("DEMO parameters")]
-    [SerializeField] int generationNumberToLoad;
-    [SerializeField] [Range(0.1f, 50f)] public float timeScale = 1;
-    [SerializeField] public int simulationSteps;
     
+    [Header("DEMO parameters")]
+    [SerializeField] int generationToLoad;
+    [SerializeField] [Range(0.1f, 5f)] public float timeScale = 1;
+    
+    private int _simulationSteps;
     private int _frameCounter;
-    private GameObject populationObject;
-    private RocketPopulation population;
+    private GameObject _populationObject;
+    private RocketPopulation _population;
     
     void Start()
     {
         Time.timeScale = timeScale;
         _frameCounter = 0;
         
-        populationObject = new GameObject("PopulationManager");
-        population = populationObject.AddComponent<RocketPopulation>();
+        _populationObject = new GameObject("PopulationManager");
+        _population = _populationObject.AddComponent<RocketPopulation>();
         
-        population.LoadSpawnGenerationFromFile(rocketIndividualPrefab,generationNumberToLoad,out simulationSteps);
+        _population.LoadSpawnGenerationFromFile(rocketIndividualPrefab,generationToLoad,out _simulationSteps);
     }
 
     private void Update()
@@ -40,7 +36,7 @@ public class RocketDemoManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(_frameCounter >= simulationSteps)
+        if(_frameCounter >= _simulationSteps)
         {
             ResetPopulation();
             _frameCounter = 0;
@@ -50,7 +46,7 @@ public class RocketDemoManager : MonoBehaviour
     
     private void CalculateFitness()
     {
-        foreach (var rocketIndividual in population.individuals)
+        foreach (var rocketIndividual in _population.individuals)
         {
             //DISTANCE FROM TARGET
             float d = Vector3.Distance(rocketTarget.position, rocketIndividual.transform.position) - rocketTarget.localScale.x;
@@ -85,7 +81,7 @@ public class RocketDemoManager : MonoBehaviour
     
     private void ResetPopulation()
     {
-        foreach (var rocketIndividual in population.individuals)
+        foreach (var rocketIndividual in _population.individuals)
         {
             rocketIndividual.Reset();
         }

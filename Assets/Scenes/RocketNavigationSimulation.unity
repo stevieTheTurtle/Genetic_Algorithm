@@ -4236,7 +4236,7 @@ GameObject:
   - component: {fileID: 503971097}
   - component: {fileID: 503971096}
   m_Layer: 0
-  m_Name: SimulationManager
+  m_Name: Simulation_Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10065,9 +10065,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rocketIndividualPrefab: {fileID: 6367451109565635821, guid: f066df60fdbd1284eb7a9b72eb11bcd8, type: 3}
   rocketTarget: {fileID: 326824813}
-  generationNumberToLoad: 12
+  generationToLoad: 59
   timeScale: 1
-  simulationSteps: 0
 --- !u!4 &1082021209
 Transform:
   m_ObjectHideFlags: 0
