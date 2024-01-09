@@ -4335,7 +4335,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &503971096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4351,7 +4351,7 @@ MonoBehaviour:
   populationSize: 1500
   mutationRate: 0.01
   simulationStepsPerGeneration: 1500
-  timeScale: 10
+  timeScale: 1
   rocketIndividualPrefab: {fileID: 6367451109565635821, guid: f066df60fdbd1284eb7a9b72eb11bcd8, type: 3}
   rocketTarget: {fileID: 326824813}
   generationNumber: 0
@@ -10144,7 +10144,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1082021208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10159,7 +10159,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rocketIndividualPrefab: {fileID: 6367451109565635821, guid: f066df60fdbd1284eb7a9b72eb11bcd8, type: 3}
   rocketTarget: {fileID: 326824813}
-  generationToLoad: 59
+  generationToLoad: 65
   timeScale: 1
 --- !u!4 &1082021209
 Transform:
